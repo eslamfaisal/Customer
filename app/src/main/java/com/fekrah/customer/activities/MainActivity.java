@@ -148,8 +148,8 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
     @BindView(R.id.near_by_places)
     ImageView near_by_places;
 
-//    @BindView(R.id.arrival_place_v)
-//    View arrival_place_v;
+    @BindView(R.id.cars_num)
+    TextView cars_num;
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
@@ -1456,7 +1456,6 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
 //                });
 //    }
 
-    boolean getDriversAroundStarted = false;
     List<Marker> markers = new ArrayList<Marker>();
 
     private void getDriversAround() {
@@ -1464,10 +1463,10 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         DatabaseReference ref = FirebaseDatabase.getInstance()
                 .getReference().child("drivers_location");
         GeoFire geoFire = new GeoFire(ref);
-        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(location.getLongitude(), location.getLatitude()), 100000);
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(location.getLongitude(), location.getLatitude()), 10000);
 
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-            @SuppressLint("NewApi")
+
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
 
@@ -1485,17 +1484,22 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
                 mDriverMarker.setTag(key);
 
                 markers.add(mDriverMarker);
+                Log.d("ddddd", "onKeyExited: added");
 
+//                cars_num.setText(String.valueOf(markers.size()));
             }
 
-            @SuppressLint("NewApi")
             @Override
             public void onKeyExited(String key) {
                 for (Marker markerIt : markers) {
                     if (Objects.equals(markerIt.getTag(), key)) {
+                        Log.d("ddddd", "onKeyExited: removed");
                         markerIt.remove();
                     }
                 }
+//                    cars_num.setText(""+markers.size());
+//                    Log.d("ddddd", "onKeyExited: removed doo");
+
             }
 
             @SuppressLint("NewApi")
@@ -1514,6 +1518,20 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
 
             @Override
             public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue()!=null)
+               cars_num.setText(String.valueOf(dataSnapshot.getChildrenCount()));
+                else cars_num.setText("0");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
