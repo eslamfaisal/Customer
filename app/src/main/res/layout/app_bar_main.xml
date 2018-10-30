@@ -143,6 +143,15 @@
             android:layout_below="@id/pick_locations"
             tools:context=".activities.MainActivity" />
 
+        <ImageView
+            android:background="@drawable/ic_edit_text_background_shape"
+            android:id="@+id/near_by_places"
+            android:layout_margin="16dp"
+            android:padding="8dp"
+            android:layout_below="@id/pick_locations"
+            android:src="@drawable/ic_near_places_icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
     </RelativeLayout>
 
     <LinearLayout

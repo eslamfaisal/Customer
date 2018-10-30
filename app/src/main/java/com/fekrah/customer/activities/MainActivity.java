@@ -7,9 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.support.annotation.CallSuper;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -17,6 +21,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -89,6 +94,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -117,6 +123,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends LocationBaseActivity implements OnMapReadyCallback,
@@ -138,8 +145,8 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
 //    @BindView(R.id.receiver_place_actv)
 //    AutoCompleteTextView mSearchText;
 
-//    @BindView(R.id.arrival_place_tv)
-//    TextView arrivalPlaceTv;
+    @BindView(R.id.near_by_places)
+    ImageView near_by_places;
 
 //    @BindView(R.id.arrival_place_v)
 //    View arrival_place_v;
@@ -223,7 +230,14 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         samplePresenter = new SamplePresenter(this);
         buildGoogleApiClient();
         mGoogleApiClient.connect();
+        near_by_places.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+                Intent intent = new Intent(MainActivity.this, PlacesActivity.class);
+                startActivityForResult(intent, GET_PLACE_REQUEST);
+            }
+        });
         FirebaseDatabase.getInstance().getReference().child("users")
                 .child(FirebaseAuth.getInstance().getUid())
                 .addValueEventListener(new ValueEventListener() {
@@ -246,6 +260,42 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
 
                     }
                 });
+
+        FirebaseDatabase.getInstance().getReference().child("Customer_current_order")
+                .child(FirebaseAuth.getInstance().getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue()==null&&arrivalLocationMarker!=null){
+                    arrivalLocationMarker.remove();
+                    if (polyline1!=null){
+                        polyline1.remove();
+                        distancePoly.remove();
+                    }
+                    if (distancePoly!=null) distancePoly.remove();
+                    if (receiverLocationMarker!=null) receiverLocationMarker.remove();
+                    if (currentLocationMarker!=null)currentLocationMarker.remove();
+                    mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                    if (autocompleteFragment!=null){
+
+                        EditText etPlace = (EditText) autocompleteFragment.getView().findViewById(R.id.place_autocomplete_search_input);
+                        etPlace.setHint(getString(R.string.arrival_area));
+                        etPlace.setText(null);
+
+                        EditText etPlace2 = (EditText) autocompleteFragment2.getView().findViewById(R.id.place_autocomplete_search_input);
+                        etPlace2.setHint(getString(R.string.receiver_location));
+                        etPlace2.setText(null);
+
+                    }
+
+                    moveCameraCurrentLocation(new LatLng(location.getLatitude(),location.getLongitude()),getString(R.string.my_location));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
@@ -556,6 +606,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         if (distancePoly != null) {
             distancePoly.remove();
         }
+
         arrivalLocationMarkerOption = new MarkerOptions()
                 .position(latLng)
                 //.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_on_black_24dp))
@@ -572,6 +623,25 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
 //
 //                    .add(receiverLocationMarkerOption.getPosition(),
 //                            arrivalLocationMarkerOption.getPosition()));
+            CalculateDistanceTime distance_task = new CalculateDistanceTime(this);
+
+            distance_task.getDirectionsUrl(latLng1, latLng, serverKey);
+
+            distance_task.setLoadListener(new CalculateDistanceTime.taskCompleteListener() {
+                @Override
+                public void taskCompleted(String[] time_distance) {
+//                approximate_time.setText("" + time_distance[1]);
+//                approximate_diatance.setText("" + time_distance[0]);
+//                results[0]= Float.parseFloat(time_distance[1]);
+                    results[0] = time_distance[0];
+                    results[1] = time_distance[1];
+
+                    Log.d("aaaaaaaaaaaaaa", "distance =" + results[0]);
+                    Log.d("aaaaaaaaaaaaaa", "time =" + results[1]);
+                    mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                }
+
+            });
             GoogleDirection.withServerKey(serverKey)
                     .from(latLng1)
                     .to(latLng)
@@ -628,23 +698,49 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
     }
 
     public void moveCameraReceiverLocation(LatLng latLng, String location) {
-
+        receiver = latLng;
         if (arrivalLocationMarker == null) {
-            moveCameraCurrentLocation(latLng, location);
+            if (distancePoly != null) {
+                distancePoly.remove();
+            }
+            if (currentLocationMarker != null)
+                currentLocationMarker.remove();
+
+            if (polyline1 != null) polyline1.remove();
+
+            if (receiverLocationMarker != null)
+                receiverLocationMarker.remove();
+            receiverLocationMarkerOption = new MarkerOptions()
+                    .position(latLng)
+                    .icon(bitmapDescriptorFromVector(this,R.drawable.ic_my_location_marker))
+                    .title(location);
+            receiverLocationMarker = mMap.addMarker(receiverLocationMarkerOption);
+
+            CameraPosition SENDBIS = CameraPosition.builder()
+                    .target(latLng)
+                    .zoom(17)
+                    .build();
+            Log.d(TAG, "movCamera: move to latlang " + latLng.toString());
+
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(SENDBIS), 5000, null);
+
             return;
         }
+
         if (distancePoly != null) {
             distancePoly.remove();
         }
-        if (currentLocationMarker != null) currentLocationMarker.remove();
+        if (currentLocationMarker != null)
+            currentLocationMarker.remove();
 
         if (polyline1 != null) polyline1.remove();
 
         if (receiverLocationMarker != null)
             receiverLocationMarker.remove();
+
         receiverLocationMarkerOption = new MarkerOptions()
                 .position(latLng)
-                //   .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_on_black_24dp))
+                .icon(bitmapDescriptorFromVector(this,R.drawable.ic_my_location_marker))
                 .title(location);
         receiverLocationMarker = mMap.addMarker(receiverLocationMarkerOption);
 
@@ -694,16 +790,30 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
                 .alternativeRoute(true)
                 .execute(this);
 
-        receiver = latLng;
+
+    }
+
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, @DrawableRes int vectorDrawableResourceId) {
+        Drawable background = ContextCompat.getDrawable(context, vectorDrawableResourceId);
+        background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
+       // Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableResourceId);
+        //vectorDrawable.setBounds(40, 20, vectorDrawable.getIntrinsicWidth() + 40, vectorDrawable.getIntrinsicHeight() + 20);
+        Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        background.draw(canvas);
+        //vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     private void moveCameraCurrentLocation(LatLng latLng, String location) {
         recieverLocationAdress = getString(R.string.my_location);
+        receiver = latLng;
         if (currentLocationMarker != null)
             currentLocationMarker.remove();
+
         currentLocationMarkerOption = new MarkerOptions()
                 .position(latLng)
-                // .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_location_on_black_24dp))
+                 .icon(bitmapDescriptorFromVector(this,R.drawable.ic_my_location_marker))
                 .title(location);
         CameraPosition SENDBIS = CameraPosition.builder()
                 .target(latLng)
@@ -716,7 +826,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         //  mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
         // mMap.addMarker(new MarkerOptions().position(latLng));
         hideKeyBoard();
-        receiver = latLng;
+
     }
 
     private void hideSoftKeyboard() {
@@ -1013,7 +1123,6 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
                 autocompleteFragment.setText(arrivalLocationAddress);
                 moveCameraArrivalLocation(new LatLng(result.getGeometry().getResultLocation().getLat(),
                         result.getGeometry().getResultLocation().getLng()), arrivalLocationAddress);
-
 
             }
         } else {
@@ -1355,7 +1464,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         DatabaseReference ref = FirebaseDatabase.getInstance()
                 .getReference().child("drivers_location");
         GeoFire geoFire = new GeoFire(ref);
-        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(location.getLongitude(), location.getLatitude()), 1000);
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(location.getLongitude(), location.getLatitude()), 100000);
 
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @SuppressLint("NewApi")

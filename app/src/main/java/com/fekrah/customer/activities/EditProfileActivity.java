@@ -93,7 +93,7 @@ public class EditProfileActivity extends BaseActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseStorage = FirebaseStorage.getInstance();
-        mMyProfileReference = mFirebaseDatabase.getReference().child("drivers");
+        mMyProfileReference = mFirebaseDatabase.getReference().child("users");
         frontImageStorageReference = mFirebaseStorage.getReference();
         backImageStorageReference = mFirebaseStorage.getReference();
         profileStorageReference = mFirebaseStorage.getReference();

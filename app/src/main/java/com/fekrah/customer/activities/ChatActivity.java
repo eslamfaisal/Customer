@@ -219,7 +219,7 @@ public class ChatActivity extends AppCompatActivity {
                 ImagePicker.create(ChatActivity.this)
                         .limit(1)
                         .theme(R.style.UCrop)
-                        .folderMode(true)
+                        .folderMode(false)
                         .start();
             }
         });

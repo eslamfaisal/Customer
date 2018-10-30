@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.fekrah.customer.R;
+import com.fekrah.customer.helper.CalculateDistanceTime;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -30,9 +31,6 @@ public class PlacesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private boolean isLoadingAdded = false;
     private boolean retryPageLoad = false;
 
-    private PaginationAdapterCallback mCallback;
-
-    private String errorMsg;
     LatLng myLatLng;
     String key;
     public static final String PLACE_RESULT="PLACE_RESULT";
@@ -51,7 +49,6 @@ public class PlacesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.key = key;
         this.myLatLng = myLatLng;
     }
-
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -89,42 +86,42 @@ public class PlacesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     placesViewHolder.placeLocation.setText(result.getFormatted_address());
                 else
                     placesViewHolder.placeLocation.setText(result.getVicinity());
-//                CalculateDistanceTime distance_task = new CalculateDistanceTime(context);
+                CalculateDistanceTime distance_task = new CalculateDistanceTime(context);
+
+                distance_task.getDirectionsUrl(new LatLng(result.getGeometry().getResultLocation().getLat(),
+                        result.getGeometry().getResultLocation().getLng()), myLatLng, key);
+
+                distance_task.setLoadListener(new CalculateDistanceTime.taskCompleteListener() {
+                    @Override
+                    public void taskCompleted(String[] time_distance) {
+//                approximate_time.setText("" + time_distance[1]);
+//                approximate_diatance.setText("" + time_distance[0]);
+//                results[0]= Float.parseFloat(time_distance[1]);
+//                        results[0] = time_distance[0];
+//                        results[1] = time_distance[1];
+                        placesViewHolder.placeDistance.setText(time_distance[0]);
+                    }
+
+                });
+
+//                    float[] results = new float[1];
+//                Location.distanceBetween(result.getGeometry().getResultLocation().getLat(),
+//                        result.getGeometry().getResultLocation().getLng(),
+//                        myLatLng.latitude, myLatLng.longitude, results);
 //
-//                distance_task.getDirectionsUrl(new LatLng(result.getGeometry().getResultLocation().getLat(),
-//                        result.getGeometry().getResultLocation().getLng()), myLatLng, key);
 //
-//                distance_task.setLoadListener(new CalculateDistanceTime.taskCompleteListener() {
-//                    @Override
-//                    public void taskCompleted(String[] time_distance) {
-////                approximate_time.setText("" + time_distance[1]);
-////                approximate_diatance.setText("" + time_distance[0]);
-////                results[0]= Float.parseFloat(time_distance[1]);
-////                        results[0] = time_distance[0];
-////                        results[1] = time_distance[1];
-//                        placesViewHolder.placeDistance.setText(time_distance[0]);
-//                    }
+//                float finalDistance = 0f;
+//                int distance1 = Math.round(results[0]);
+//                float smal = results[0] - ((float) distance1);
+//                String dis = String.valueOf(smal);
+//                if (dis.length() >= 2) {
+//                    char s = dis.charAt(2);
+//                    float newsmallDistance = (float) (s / 10);
+//                    finalDistance = ((float) distance1) + newsmallDistance;
+//                }
 //
-//                });
-
-                    float[] results = new float[1];
-                Location.distanceBetween(result.getGeometry().getResultLocation().getLat(),
-                        result.getGeometry().getResultLocation().getLng(),
-                        myLatLng.latitude, myLatLng.longitude, results);
-
-
-                float finalDistance = 0f;
-                int distance1 = Math.round(results[0]);
-                float smal = results[0] - ((float) distance1);
-                String dis = String.valueOf(smal);
-                if (dis.length() >= 2) {
-                    char s = dis.charAt(2);
-                    float newsmallDistance = (float) (s / 10);
-                    finalDistance = ((float) distance1) + newsmallDistance;
-                }
-
-                float km = finalDistance / 1000.0f;
-                placesViewHolder.placeDistance.setText((String.valueOf(km)) + context.getString(R.string.k_m));
+//                float km = finalDistance / 1000.0f;
+//                placesViewHolder.placeDistance.setText((String.valueOf(km)) + context.getString(R.string.k_m));
 
                 placesViewHolder.mainView.setOnClickListener(new View.OnClickListener() {
                     @Override

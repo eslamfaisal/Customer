@@ -33,7 +33,7 @@
     <string name="first_name_no_number">Name Not match</string>
     <string name="check_email_or_password">check email and password</string>
 
-    <string name="enter_your_email_to_reset">اخدل الايميل للاستعادة</string>
+    <string name="enter_your_email_to_reset">ادخل الايميل للاستعادة</string>
     <string name="reset">ارسال</string>
     <string name="reset_password">استعادة الرقم السري</string>
 

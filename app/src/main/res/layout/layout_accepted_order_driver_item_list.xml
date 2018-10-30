@@ -29,8 +29,7 @@
                 android:progress="0"
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
-                android:layout_above="@+id/bottom_header_relativelayout"
-                />
+                android:layout_above="@+id/bottom_header_relativelayout" />
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -170,26 +169,27 @@
                 <com.rafakob.drawme.DrawMeButton
                     android:id="@+id/accept"
                     android:layout_width="0dp"
-                    android:gravity="center"
                     android:layout_height="40dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginRight="16dp"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:text="@string/accept"
                     android:textColor="@color/white"
-                    drawme:dm_backColor="@color/green"
-                    drawme:dm_backColorPressed="@color/colorPrimary"
+                    drawme:dm_backColor="@color/colorPrimary"
+                    drawme:dm_backColorPressed="@color/green"
                     drawme:dm_radius="16dp" />
 
                 <com.rafakob.drawme.DrawMeButton
                     android:id="@+id/refuse"
                     android:layout_width="0dp"
                     android:gravity="center"
-                    android:layout_height="40dp"                    android:layout_weight="1"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
                     android:text="@string/refuse"
                     android:textColor="@color/white"
-                    drawme:dm_backColor="@color/grey"
-                    drawme:dm_backColorPressed="@color/colorPrimary"
+                    drawme:dm_backColor="@color/red"
+                    drawme:dm_backColorPressed="@color/green"
                     drawme:dm_radius="16dp" />
 
             </LinearLayout>
