@@ -121,5 +121,7 @@
     <string name="string_logo">Places</string>
     <string name="search">Search</string>
     <string name="nearby_places">Nearby places</string>
+    <string name="egypt">Egypt</string>
+    <string name="saudi_arabia">saudi arabia</string>
 
 </resources>

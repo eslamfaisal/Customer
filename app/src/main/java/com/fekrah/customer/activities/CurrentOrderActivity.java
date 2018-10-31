@@ -413,11 +413,35 @@ public class CurrentOrderActivity extends AppCompatActivity {
                     .onPositive(new MaterialDialog.SingleButtonCallback() {
                         @Override
                         public void onClick(MaterialDialog dialog, DialogAction which) {
-                            mCurrentUserOrderReference.child("order").removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            mCurrentUserOrderReference.child("order").removeValue()
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful())
+                                    if (task.isSuccessful()){
+                                        if(keys.size()>0){
+                                            for (String key :keys){
+                                                FirebaseDatabase.getInstance().getReference().child("drivers_current_order")
+                                                        .child(key).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        FirebaseDatabase.getInstance().getReference().child("Customer_current_order")
+                                                                .child(FirebaseAuth.getInstance().getUid()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if (task.isSuccessful()){
+                                                                    Log.d(TAG, "onComplete: deleted");
+                                                                }
+
+                                                            }
+                                                        });
+
+
+                                                    }
+                                                });
+                                            }
+                                        }
                                         finish();
+                                    }
                                 }
                             });
                         }

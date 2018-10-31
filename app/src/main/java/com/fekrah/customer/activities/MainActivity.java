@@ -2,6 +2,9 @@ package com.fekrah.customer.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +36,7 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -58,6 +62,7 @@ import com.fekrah.customer.adapters.PlaceAutocompleteAdapter;
 import com.fekrah.customer.fragments.TalabatFragment;
 import com.fekrah.customer.fragments.TawselFragment;
 import com.fekrah.customer.helper.CalculateDistanceTime;
+import com.fekrah.customer.helper.SharedHelper;
 import com.fekrah.customer.models.PlaceInfo;
 import com.fekrah.customer.models.User;
 import com.fekrah.customer.places.PlacesActivity;
@@ -113,6 +118,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.rafakob.drawme.DrawMeButton;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.yayandroid.locationmanager.base.LocationBaseActivity;
 import com.yayandroid.locationmanager.configuration.Configurations;
@@ -229,8 +235,8 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         samplePresenter = new SamplePresenter(this);
-        buildGoogleApiClient();
-        mGoogleApiClient.connect();
+
+
         near_by_places.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -298,8 +304,41 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
 
             }
         });
-
         startService(new Intent(getApplicationContext(),MessagesIntentService.class));
+
+        if (!SharedHelper.getKey(MainActivity.this,"lang").equals("EG")&&
+                !SharedHelper.getKey(MainActivity.this,"lang").equals("SA")){
+            Log.d("hahahahah", "onCreate: null");
+            final Dialog builder =new Dialog(this);
+            View view =  LayoutInflater.from(this).inflate(R.layout.cuntry_layout,null);
+            builder.setContentView(view);
+            DrawMeButton egypt = view.findViewById(R.id.egypt);
+            DrawMeButton saudia =view.findViewById(R.id.saudia);
+            egypt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    SharedHelper.putKey(MainActivity.this,"lang","EG");
+                    builder.dismiss();
+                    buildGoogleApiClient();
+                    mGoogleApiClient.connect();
+                }
+            });
+            saudia.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    SharedHelper.putKey(MainActivity.this,"lang","SA");
+                    builder.dismiss();
+                    buildGoogleApiClient();
+                    mGoogleApiClient.connect();
+                }
+            });
+            builder.setCancelable(false);
+            builder.show();
+        }else {
+            buildGoogleApiClient();
+            mGoogleApiClient.connect();
+        }
+
     }
 
     protected void createLocationRequest() {
@@ -868,7 +907,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
                 // setDistance(results[0]);
 
                 talabatFragment.change(receiver, arrival, recieverLocationAdress, arrivalLocationAddress,
-                        results, 8);
+                        results, 5);
                 // tawselFragment.change(recieverLocationAdress, arrivalLocationAddress, results[0], 8);
 
 
@@ -944,7 +983,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         //  new AutocompleteFilter.Builder().setTypeFilter(AutocompleteFilter.TYPE_FILTER_REGIONS).build();
         AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
                 .setTypeFilter(AutocompleteFilter.TYPE_FILTER_NONE)
-                .setCountry("EG")
+                .setCountry(SharedHelper.getKey(MainActivity.this,"lang"))
                 .build();
 //        mPlaceAutocompleteAdapter = new PlaceAutocompleteAdapter(this, mGoogleApiClient,
 //                LAT_LNG_BOUNDS, typeFilter);

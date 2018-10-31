@@ -133,7 +133,8 @@ public class TalabatFragment extends Fragment {
         return mainView;
     }
 
-    public void change(LatLng receiverLatLng, LatLng arrivalLatLng, final String receiver, final String arrival, String[] results, final int costkm) {
+    public void change(LatLng receiverLatLng, LatLng arrivalLatLng, final String receiver,
+                       final String arrival, String[] results, final int costkm) {
         if (receiverLatLng != null && arrivalLatLng != null && receiver != null && arrival != null) {
 
             String result = results[0].substring(0, results[0].length() - 2);
@@ -155,7 +156,13 @@ public class TalabatFragment extends Fragment {
             to.setText(receiverAddress);
             arrivalString = arrival;
             from.setText(arrivalString);
-            costString = String.valueOf(Float.parseFloat(result) * costkm + getString(R.string.omla));
+            if (Float.parseFloat(result)<=5){
+                costString = "12 "+getString(R.string.omla);
+            }else {
+                float inc = Float.parseFloat(result)+7;
+                costString = String.valueOf(inc+ getString(R.string.omla));
+            }
+
             cost.setText(costString);
             distanceString = result + getString(R.string.k_m);
             distance.setText(distanceString);

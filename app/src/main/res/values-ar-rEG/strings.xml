@@ -123,5 +123,7 @@
     <string name="search">بحث</string>
     <string name="nearby_places">اماكن مجاورة</string>
     <string name="no_places">لا توجد اماكن</string>
+    <string name="egypt">Egypt</string>
+    <string name="saudi_arabia">saudi arabia</string>
 
 </resources>
