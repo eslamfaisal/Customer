@@ -105,6 +105,7 @@
         <activity
             android:name=".activities.EditProfileActivity"
             android:screenOrientation="portrait" />
+        <service android:name=".MessagesIntentService"/>
     </application>
 
 </manifest>

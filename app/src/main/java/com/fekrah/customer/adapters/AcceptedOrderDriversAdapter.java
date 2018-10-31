@@ -255,7 +255,7 @@ public class AcceptedOrderDriversAdapter extends RecyclerView.Adapter<AcceptedOr
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             final Room room2 = new Room(
-                                                    MainActivity.currentUser.getName(),
+                                                    MainActivity.currentUser.getImg(),
                                                     "",
                                                     System.currentTimeMillis(),
                                                     MainActivity.currentUser.getUser_key(),

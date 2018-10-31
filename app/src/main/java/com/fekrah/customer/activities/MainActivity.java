@@ -51,6 +51,7 @@ import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Route;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.fekrah.customer.MessagesIntentService;
 import com.fekrah.customer.R;
 import com.fekrah.customer.SamplePresenter;
 import com.fekrah.customer.adapters.PlaceAutocompleteAdapter;
@@ -286,7 +287,8 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
                         etPlace2.setText(null);
 
                     }
-
+                    receiver=new LatLng(location.getLatitude(),location.getLongitude());
+                    currentLocationLatLng = new LatLng(location.getLatitude(),location.getLongitude());
                     moveCameraCurrentLocation(new LatLng(location.getLatitude(),location.getLongitude()),getString(R.string.my_location));
                 }
             }
@@ -297,6 +299,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
             }
         });
 
+        startService(new Intent(getApplicationContext(),MessagesIntentService.class));
     }
 
     protected void createLocationRequest() {
@@ -520,9 +523,6 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
     }
 
     private String serverKey = "AIzaSyAnKvay92-zyf4Or37UL6tsEF7BL8PiC6U";
-    private LatLng origin = new LatLng(35.1766982, 136.9413508);
-    private LatLng destination = new LatLng(35.1735305, 136.9484515);
-    private String[] colors = {"#7fff7272", "#7f31c7c5", "#7fff8a00"};
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -614,8 +614,9 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         arrivalLocationMarker = mMap.addMarker(arrivalLocationMarkerOption);
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         LatLng latLng1 = null;
+
         if (receiverLocationMarkerOption != null) {
-            latLng1 = receiverLocationMarkerOption.getPosition();
+            latLng1 = receiver;
 //            builder.include(latLng1);
 //            polyline1 = mMap.addPolyline(new PolylineOptions()
 //                    .clickable(true)

@@ -337,8 +337,6 @@ public class PlacesActivity extends AppCompatActivity implements PlacesAdapter.P
                         adapter.addAll(s);
                         adapter.addLoadingFooter();
                         isLoading = false;
-                        Log.d("aaaaaa", "onResponse: " + response.body().getResults().get(0).getFormatted_address());
-                        Log.d("aaaaaa", "reee: " + response.body().getNext_page_token());
 
                     } else {
                         emptyPlaces.setVisibility(View.VISIBLE);
