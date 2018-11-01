@@ -240,9 +240,11 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         near_by_places.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (location != null) {
+                    Intent intent = new Intent(MainActivity.this, PlacesActivity.class);
+                    startActivityForResult(intent, GET_PLACE_REQUEST);
+                }
 
-                Intent intent = new Intent(MainActivity.this, PlacesActivity.class);
-                startActivityForResult(intent, GET_PLACE_REQUEST);
             }
         });
         FirebaseDatabase.getInstance().getReference().child("users")
@@ -272,17 +274,17 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
                 .child(FirebaseAuth.getInstance().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.getValue()==null&&arrivalLocationMarker!=null){
+                if (dataSnapshot.getValue() == null && arrivalLocationMarker != null) {
                     arrivalLocationMarker.remove();
-                    if (polyline1!=null){
+                    if (polyline1 != null) {
                         polyline1.remove();
                         distancePoly.remove();
                     }
-                    if (distancePoly!=null) distancePoly.remove();
-                    if (receiverLocationMarker!=null) receiverLocationMarker.remove();
-                    if (currentLocationMarker!=null)currentLocationMarker.remove();
+                    if (distancePoly != null) distancePoly.remove();
+                    if (receiverLocationMarker != null) receiverLocationMarker.remove();
+                    if (currentLocationMarker != null) currentLocationMarker.remove();
                     mLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-                    if (autocompleteFragment!=null){
+                    if (autocompleteFragment != null) {
 
                         EditText etPlace = (EditText) autocompleteFragment.getView().findViewById(R.id.place_autocomplete_search_input);
                         etPlace.setHint(getString(R.string.arrival_area));
@@ -293,9 +295,9 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
                         etPlace2.setText(null);
 
                     }
-                    receiver=new LatLng(location.getLatitude(),location.getLongitude());
-                    currentLocationLatLng = new LatLng(location.getLatitude(),location.getLongitude());
-                    moveCameraCurrentLocation(new LatLng(location.getLatitude(),location.getLongitude()),getString(R.string.my_location));
+                    receiver = new LatLng(location.getLatitude(), location.getLongitude());
+                    currentLocationLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    moveCameraCurrentLocation(new LatLng(location.getLatitude(), location.getLongitude()), getString(R.string.my_location));
                 }
             }
 
@@ -304,20 +306,20 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
 
             }
         });
-        startService(new Intent(getApplicationContext(),MessagesIntentService.class));
+        startService(new Intent(getApplicationContext(), MessagesIntentService.class));
 
-        if (!SharedHelper.getKey(MainActivity.this,"lang").equals("EG")&&
-                !SharedHelper.getKey(MainActivity.this,"lang").equals("SA")){
+        if (!SharedHelper.getKey(MainActivity.this, "lang").equals("EG") &&
+                !SharedHelper.getKey(MainActivity.this, "lang").equals("SA")) {
             Log.d("hahahahah", "onCreate: null");
-            final Dialog builder =new Dialog(this);
-            View view =  LayoutInflater.from(this).inflate(R.layout.cuntry_layout,null);
+            final Dialog builder = new Dialog(this);
+            View view = LayoutInflater.from(this).inflate(R.layout.cuntry_layout, null);
             builder.setContentView(view);
             DrawMeButton egypt = view.findViewById(R.id.egypt);
-            DrawMeButton saudia =view.findViewById(R.id.saudia);
+            DrawMeButton saudia = view.findViewById(R.id.saudia);
             egypt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    SharedHelper.putKey(MainActivity.this,"lang","EG");
+                    SharedHelper.putKey(MainActivity.this, "lang", "EG");
                     builder.dismiss();
                     buildGoogleApiClient();
                     mGoogleApiClient.connect();
@@ -326,7 +328,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
             saudia.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    SharedHelper.putKey(MainActivity.this,"lang","SA");
+                    SharedHelper.putKey(MainActivity.this, "lang", "SA");
                     builder.dismiss();
                     buildGoogleApiClient();
                     mGoogleApiClient.connect();
@@ -334,7 +336,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
             });
             builder.setCancelable(false);
             builder.show();
-        }else {
+        } else {
             buildGoogleApiClient();
             mGoogleApiClient.connect();
         }
@@ -752,7 +754,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
                 receiverLocationMarker.remove();
             receiverLocationMarkerOption = new MarkerOptions()
                     .position(latLng)
-                    .icon(bitmapDescriptorFromVector(this,R.drawable.ic_my_location_marker))
+                    .icon(bitmapDescriptorFromVector(this, R.drawable.ic_my_location_marker))
                     .title(location);
             receiverLocationMarker = mMap.addMarker(receiverLocationMarkerOption);
 
@@ -780,7 +782,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
 
         receiverLocationMarkerOption = new MarkerOptions()
                 .position(latLng)
-                .icon(bitmapDescriptorFromVector(this,R.drawable.ic_my_location_marker))
+                .icon(bitmapDescriptorFromVector(this, R.drawable.ic_my_location_marker))
                 .title(location);
         receiverLocationMarker = mMap.addMarker(receiverLocationMarkerOption);
 
@@ -836,7 +838,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
     private BitmapDescriptor bitmapDescriptorFromVector(Context context, @DrawableRes int vectorDrawableResourceId) {
         Drawable background = ContextCompat.getDrawable(context, vectorDrawableResourceId);
         background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
-       // Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableResourceId);
+        // Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableResourceId);
         //vectorDrawable.setBounds(40, 20, vectorDrawable.getIntrinsicWidth() + 40, vectorDrawable.getIntrinsicHeight() + 20);
         Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
@@ -853,7 +855,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
 
         currentLocationMarkerOption = new MarkerOptions()
                 .position(latLng)
-                 .icon(bitmapDescriptorFromVector(this,R.drawable.ic_my_location_marker))
+                .icon(bitmapDescriptorFromVector(this, R.drawable.ic_my_location_marker))
                 .title(location);
         CameraPosition SENDBIS = CameraPosition.builder()
                 .target(latLng)
@@ -983,7 +985,7 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         //  new AutocompleteFilter.Builder().setTypeFilter(AutocompleteFilter.TYPE_FILTER_REGIONS).build();
         AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
                 .setTypeFilter(AutocompleteFilter.TYPE_FILTER_NONE)
-                .setCountry(SharedHelper.getKey(MainActivity.this,"lang"))
+                .setCountry(SharedHelper.getKey(MainActivity.this, "lang"))
                 .build();
 //        mPlaceAutocompleteAdapter = new PlaceAutocompleteAdapter(this, mGoogleApiClient,
 //                LAT_LNG_BOUNDS, typeFilter);
@@ -1422,8 +1424,10 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
             FirebaseAuth.getInstance().signOut();
             finish();
         } else if (id == R.id.nav_places) {
-            Intent intent = new Intent(this, PlacesActivity.class);
-            startActivityForResult(intent, GET_PLACE_REQUEST);
+            if (location != null) {
+                Intent intent = new Intent(MainActivity.this, PlacesActivity.class);
+                startActivityForResult(intent, GET_PLACE_REQUEST);
+            }
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1565,8 +1569,8 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null)
-               cars_num.setText(String.valueOf(dataSnapshot.getChildrenCount()));
+                if (dataSnapshot.getValue() != null)
+                    cars_num.setText(String.valueOf(dataSnapshot.getChildrenCount()));
                 else cars_num.setText("0");
             }
 
