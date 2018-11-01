@@ -332,6 +332,7 @@ public class CurrentOrderActivity extends AppCompatActivity {
         });
         dialog = new AlertDialog.Builder(this);
         dialog.setTitle(getString(R.string.rate));
+        dialog.setCancelable(false);
         dialog.setMessage(R.string.please_rate_me);
 
         RatingBar ratingBar = new RatingBar(this);
