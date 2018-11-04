@@ -186,14 +186,14 @@ public class PlacesActivity extends AppCompatActivity implements PlacesAdapter.P
                         if (!suggestions.contains(string)) {
                             Log.d("aaaa", "onSearch: yes added");
                             suggestions.add(0,string);
-                            if (suggestions.size()>=5){
+                            if (suggestions.size()>=6){
                                 suggestions.remove(5);
                             }
                             InternalStorage.writeObject(getApplicationContext(), "sug", suggestions);
                         }else {
                             suggestions.remove(string);
                             suggestions.add(0,string);
-                            if (suggestions.size()>=5){
+                            if (suggestions.size()>=6){
                                 suggestions.remove(5);
                             }
                             InternalStorage.writeObject(getApplicationContext(), "sug", suggestions);
