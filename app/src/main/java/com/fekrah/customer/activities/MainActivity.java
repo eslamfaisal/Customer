@@ -1160,7 +1160,6 @@ public class MainActivity extends LocationBaseActivity implements OnMapReadyCall
         } else if (requestCode == GET_PLACE_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Results result = (Results) data.getSerializableExtra("result");
-                // Toast.makeText(this, result.getName(), Toast.LENGTH_SHORT).show();
                 arrivalLocationAddress = result.getName();
                 autocompleteFragment.setText(arrivalLocationAddress);
                 moveCameraArrivalLocation(new LatLng(result.getGeometry().getResultLocation().getLat(),
